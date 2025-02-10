@@ -53,7 +53,7 @@ def main(page: ft.Page):
     page.window_height = 500
     page.bgcolor = "#d9d9d9"
     
-    background_image = ft.Image(src="C:/Users/LENOVO/Documents/Analizador/Colorful Brushstrokes Beauty YouTube Intro (2).png", fit=ft.ImageFit.COVER, width=page.window_width, height=page.window_height)
+    background_image = ft.Image(src="C:/Users/LENOVO/Desktop/Analizador/Traductores/Compilador/Colorful Brushstrokes Beauty YouTube Intro (2).png", fit=ft.ImageFit.COVER, width=page.window_width, height=page.window_height)
     
     #manual 
     def show_manual(e):
