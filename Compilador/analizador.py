@@ -49,11 +49,16 @@ def lexer_java(input_text):
 #puro frontend bonito
 def main(page: ft.Page):
     page.title = "Analizador Léxico de Java"
-    page.window_width = 800
-    page.window_height = 500
+    page.window_width = 600
+    page.window_height = 400
     page.bgcolor = "#d9d9d9"
     
-    background_image = ft.Image(src="C:/Users/LENOVO/Desktop/Analizador/Traductores/Compilador/Colorful Brushstrokes Beauty YouTube Intro (2).png", fit=ft.ImageFit.COVER, width=page.window_width, height=page.window_height)
+    # Manejo opcional de imagen de fondo
+    background_image = None
+    try:
+        background_image = ft.Image(src="C:/Users/LENOVO/Downloads/Analizador (1)/Traductores/Compilador/Colorful Brushstrokes Beauty YouTube Intro (2).png", fit=ft.ImageFit.COVER, width=page.window_width, height=page.window_height)
+    except Exception as e:
+        print(f"No se pudo cargar la imagen de fondo: {e}")
     
     #manual 
     def show_manual(e):
@@ -62,7 +67,7 @@ def main(page: ft.Page):
             ft.View("/manual", [
                 ft.Container(
                     content=ft.Column([
-                        background_image,
+                        background_image if background_image else ft.Text(""),
                         ft.Text("Manual de Usuario:\n1. Ingrese código en Java.\n2. Presione Analizar.\n3. Verifique los tokens identificados.", color="#0057b7"),
                         ft.ElevatedButton("Volver", on_click=lambda e: show_main(), bgcolor="#0057b7", color="#ffffff")
                     ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER), alignment=ft.alignment.center
@@ -73,24 +78,66 @@ def main(page: ft.Page):
     
     #front del analizador
     def show_analyzer(e):
+        def cargar_archivo(e):
+            if e.files:
+                file = e.files[0]
+                # Validar extensión del archivo
+                if not file.name.lower().endswith('.java'):
+                    result.value = "Por favor, selecciona un archivo .java"
+                    result.color = "#ff0000"
+                    page.update()
+                    return
+                
+                try:
+                    with open(file.path, 'r') as f:
+                        contenido = f.read()
+                        texto_input.value = contenido
+                        
+                        # Limpiar el resultado anterior
+                        result.value = ""
+                        result.color = "#ffffff"
+                        
+                        page.update()
+                except Exception as ex:
+                    result.value = f"Error al leer el archivo: {str(ex)}"
+                    result.color = "#ff0000"
+                    page.update()
+        
+        def mostrar_selector_archivos(e):
+            boton_cargar.pick_files()
+        
         def analyze_text(e):
             try:
-                result.value = "\n".join(lexer_java(input_box.value))
+                # Primero intenta analizar el campo superior si tiene contenido
+                if texto_input.value.strip():
+                    result.value = "\n".join(lexer_java(texto_input.value))
+                # Si el campo superior está vacío, analiza el campo de "Ingresar código Java"
+                else:
+                    result.value = "\n".join(lexer_java(input_box.value))
                 result.color = "#ffffff"
             except ValueError as ex:
                 result.value = str(ex)
                 result.color = "#ff0000"
             page.update()
         
-        input_box = ft.TextField(label="Ingresa código Java", width=700, multiline=True, min_lines=10, max_lines=20, bgcolor="#0057b7", color="#ffffff")
+        texto_input = ft.TextField(label='Código Java', multiline=True, width=300, height=100, bgcolor="#0057b7", color="#ffffff")
+        
+        boton_cargar = ft.FilePicker(on_result=cargar_archivo)
+        page.overlay.append(boton_cargar)
+        
+        boton_cargar_archivo = ft.ElevatedButton("Cargar archivo", on_click=mostrar_selector_archivos, bgcolor="#0057b7", color="#ffffff")
+        
+        input_box = ft.TextField(label="Ingresa código Java", width=400, multiline=True, min_lines=5, max_lines=10, bgcolor="#0057b7", color="#ffffff")
         result = ft.Text()
-        result_container = ft.Container(content=ft.Column([result], scroll=ft.ScrollMode.AUTO), width=700, height=150, bgcolor="#0057b7")
+        result_container = ft.Container(content=ft.Column([result], scroll=ft.ScrollMode.AUTO), width=300, height=100, bgcolor="#0057b7")
         
         page.views.clear()
         page.views.append(
             ft.View("/analyzer", [
                 ft.Container(
                     content=ft.Column([
+                        texto_input,
+                        boton_cargar_archivo,
                         input_box,
                         ft.ElevatedButton("Analizar", on_click=analyze_text, bgcolor="#0057b7", color="#ffffff"),
                         result_container,
@@ -107,7 +154,7 @@ def main(page: ft.Page):
             ft.View("/", [
                 ft.Container(
                     content=ft.Column([
-                        background_image,
+                        background_image if background_image else ft.Text(""),
                         ft.ElevatedButton("Ir al Analizador", on_click=show_analyzer, bgcolor="#0057b7", color="#ffffff"),
                         ft.ElevatedButton("Manual de Usuario", on_click=show_manual, bgcolor="#0057b7", color="#ffffff")
                     ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER), alignment=ft.alignment.center
@@ -119,12 +166,5 @@ def main(page: ft.Page):
     show_main()
 
 #listico
+print("Iniciando aplicación...")
 ft.app(target=main)
-
-
-
-
-
-
-
-
